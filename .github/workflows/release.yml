@@ -1,0 +1,23 @@
+name: release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci && npm run build
+      - name: Package the app bundle
+        run: zip -rq bigcommerce-plugin.zip dist
+      - name: Attach the bundle to the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bigcommerce-plugin.zip
+      # NOTE: BigCommerce has no first-party publish Action — submit/update the marketplace app
+      # manually via the Developer Portal. Treat this GitHub Release as the source of truth.
